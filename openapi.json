@@ -1,0 +1,636 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "Celitech Core Partners API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.celitech.net/v1"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "oAuth2ClientCredentials": {
+        "type": "oauth2",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "https://auth.celitech.net/oauth2/token",
+            "scopes": {
+              "partners/all": "general scope"
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "oAuth2ClientCredentials": []
+    }
+  ],
+  "paths": {
+    "/customers": {
+      "post": {
+        "summary": "create customer",
+        "tags": [
+          "customers"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "metadata": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "customer": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "example": "672620df-6979-4daa-9cf3-4973fa15819c"
+                        },
+                        "metadata": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/destinations": {
+      "get": {
+        "summary": "get destinations available to a platform",
+        "tags": [
+          "destinations"
+        ],
+        "responses": {
+          "200": {
+            "description": "response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "destinations": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "example": "France"
+                          },
+                          "destination": {
+                            "type": "string",
+                            "example": "FRA"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/esim": {
+      "get": {
+        "summary": "check esim status & manual activation code",
+        "tags": [
+          "esim"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "required": true,
+            "name": "iccid",
+            "schema": {
+              "type": "string",
+              "example": "8910300000001034617"
+            },
+            "description": "eSIM's unique serial number"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "esim": {
+                      "type": "object",
+                      "properties": {
+                        "iccid": {
+                          "type": "string",
+                          "example": "8910300000001034617"
+                        },
+                        "smdpAddress": {
+                          "type": "string",
+                          "example": "rsp-1012.oberthur.net"
+                        },
+                        "manualActivationCode": {
+                          "type": "string",
+                          "example": "LPA:1$RSP-1012.OBERTHUR.NET$AAAAA-BBBBB-CCCCC-DDDDD"
+                        },
+                        "status": {
+                          "type": "string",
+                          "example": "RELEASED"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/esim/{iccid}/history": {
+      "get": {
+        "summary": "retrieve an esim's status update history",
+        "tags": [
+          "esim"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "required": true,
+            "name": "iccid",
+            "schema": {
+              "type": "string",
+              "example": "8910300000001034617"
+            },
+            "description": "eSIM's unique serial number"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "esim": {
+                      "type": "object",
+                      "properties": {
+                        "iccid": {
+                          "type": "string",
+                          "example": "8910300000001034617"
+                        },
+                        "history": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "example": "INSTALLED"
+                              },
+                              "date": {
+                                "type": "number",
+                                "example": 1599262839
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/packages": {
+      "get": {
+        "summary": "get packages available to a platform per destination and dates",
+        "tags": [
+          "packages"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "destination",
+            "schema": {
+              "type": "string",
+              "example": "FRA"
+            },
+            "description": "iso representation of the destination available to a platform"
+          },
+          {
+            "in": "query",
+            "name": "startTime",
+            "schema": {
+              "type": "integer",
+              "example": 1579168309
+            },
+            "description": "epoch value of any date in seconds"
+          },
+          {
+            "in": "query",
+            "name": "endTime",
+            "schema": {
+              "type": "integer",
+              "example": 1579178309
+            },
+            "description": "epoch value of any future date in seconds - must be greater than startTime"
+          },
+          {
+            "in": "query",
+            "name": "duration",
+            "schema": {
+              "type": "number",
+              "example": 1579178309
+            },
+            "description": "epoch value of duration in seconds - must be greater than 0 and less than 60 days - if present, response will ignore startTime and endTime params"
+          },
+          {
+            "in": "query",
+            "name": "afterCursor",
+            "schema": {
+              "type": "string",
+              "example": "Y3JlYXRlZEF0OjE1OTk0OTMwOTgsZGVzdGluYXRpb246QVVTLG1pbkRheXM6MCxkYXRhTGltaXRJbkJ5dGVzOjUzNjg3MDkxMjA"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "description": "must be greater than 0 and less than or equal to 160",
+            "schema": {
+              "type": "number",
+              "example": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "packages": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "example": "4973fa15-6979-4daa-9cf3-672620df819c"
+                          },
+                          "destination": {
+                            "type": "string",
+                            "example": "FRA"
+                          },
+                          "dataLimitInBytes": {
+                            "type": "number",
+                            "example": 1073741824
+                          },
+                          "minDays": {
+                            "type": "number"
+                          },
+                          "maxDays": {
+                            "type": "number"
+                          },
+                          "priceInCents": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    },
+                    "afterCursor": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "cursor indicating more data elements are available for the request, to be sent in subsequent request to retrieve the rest of the data",
+                      "example": "Y3JlYXRlZEF0OjE1OTk0OTMwOTgsZGVzdGluYXRpb246QVVTLG1pbkRheXM6MCxkYXRhTGltaXRJbkJ5dGVzOjUzNjg3MDkxMjA"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/purchases": {
+      "post": {
+        "summary": "create purchase",
+        "tags": [
+          "purchases"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "packageId": {
+                    "type": "string",
+                    "example": "4973fa15-6979-4daa-9cf3-672620df819c"
+                  },
+                  "sessionId": {
+                    "type": "string"
+                  },
+                  "startTime": {
+                    "type": "number",
+                    "example": 1579168309
+                  },
+                  "endTime": {
+                    "type": "number",
+                    "example": 1579178309
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "purchase": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "profile": {
+                      "type": "object",
+                      "properties": {
+                        "iccid": {
+                          "type": "string"
+                        },
+                        "activationCode": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "return a platform's purchases",
+        "tags": [
+          "purchases"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "required": false,
+            "name": "customerId",
+            "schema": {
+              "type": "string",
+              "example": "4973fa15-6979-4daa-9cf3-672620df819c"
+            },
+            "description": "customer's id to return a customer's purchases"
+          },
+          {
+            "in": "query",
+            "name": "afterCursor",
+            "schema": {
+              "type": "string",
+              "example": "Y3JlYXRlZEF0OjE1OTk0OTMwOTgsZGVzdGluYXRpb246QVVTLG1pbkRheXM6MCxkYXRhTGltaXRJbkJ5dGVzOjUzNjg3MDkxMjA"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "number",
+              "example": 20
+            },
+            "description": "must be greater than 0 and less than or equal to 100"
+          },
+          {
+            "in": "query",
+            "name": "before",
+            "schema": {
+              "type": "number",
+              "example": 1073741824
+            }
+          },
+          {
+            "in": "query",
+            "name": "after",
+            "schema": {
+              "type": "number",
+              "example": 1073741824
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "afterCursor": {
+                      "type": "string",
+                      "description": "cursor indicating more data elements are available for the request, to be sent in subsequent request to retrieve the rest of the data",
+                      "nullable": true,
+                      "example": "Y3JlYXRlZEF0OjE1OTk0OTMwOTgsZGVzdGluYXRpb246QVVTLG1pbkRheXM6MCxkYXRhTGltaXRJbkJ5dGVzOjUzNjg3MDkxMjA"
+                    },
+                    "purchases": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "example": "4973fa15-6979-4daa-9cf3-672620df819c"
+                          },
+                          "anonymous": {
+                            "type": "boolean",
+                            "description": "set to true when the purchase is not associated with a customer object",
+                            "example": false
+                          },
+                          "startTime": {
+                            "type": "number",
+                            "example": 1073741824
+                          },
+                          "endTime": {
+                            "type": "number",
+                            "example": 1073841824
+                          },
+                          "customer": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "description": "the id of the customer to which this purchase is linked - null if the purchase is anonymous",
+                                "nullable": true,
+                                "example": "4973fa15-6979-4daa-9cf3-672620df819c"
+                              }
+                            }
+                          },
+                          "package": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "example": "4973fa15-6979-4daa-9cf3-672620df819c"
+                              },
+                              "dataLimitInBytes": {
+                                "type": "number",
+                                "example": 1073741824
+                              },
+                              "destination": {
+                                "type": "string",
+                                "example": "FRA"
+                              },
+                              "priceInCents": {
+                                "type": "number",
+                                "example": 1073741824
+                              }
+                            }
+                          },
+                          "esim": {
+                            "type": "object",
+                            "properties": {
+                              "iccid": {
+                                "type": "string",
+                                "example": "8910300000001034617"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/purchases/{purchaseId}/consumption": {
+      "get": {
+        "summary": "check a purchase's consumption status",
+        "tags": [
+          "purchases"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "required": true,
+            "name": "purchaseId",
+            "schema": {
+              "type": "string",
+              "example": "4973fa15-6979-4daa-9cf3-672620df819c"
+            },
+            "description": "purchase's id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "dataUsageRemainingInBytes": {
+                      "type": "number"
+                    },
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sessions": {
+      "post": {
+        "summary": "create session",
+        "tags": [
+          "sessions"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "customerId": {
+                    "type": "string",
+                    "example": "672620df-6979-4daa-9cf3-4973fa15819c"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "session": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "example": "672620df-6979-4daa-9cf3-4973fa15819c"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
